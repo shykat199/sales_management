@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <meta name="description" content="Responsive Laravel Admin Dashboard Template based on Bootstrap 5">
-	<meta name="author" content="NobleUI">
-	<meta name="keywords" content="nobleui, bootstrap, bootstrap 5, bootstrap5, admin, dashboard, template, responsive, css, sass, html, laravel, theme, front-end, ui kit, web">
+    <meta name="description" content="{{env('APP_NAME')}}">
+	<meta name="author" content="{{env('APP_NAME')}}">
+	<meta name="keywords" content="{{env('APP_NAME')}}">
 
-  <title>NobleUI - Laravel Admin Dashboard Template</title>
+  <title>{{env('APP_NAME')}} | @yield('title')</title>
 
   <!-- color-modes:js -->
   @vite(['resources/js/pages/color-modes.js'])
@@ -34,9 +34,14 @@
   <link href="{{ asset('splash-screen.css') }}" rel="stylesheet" />
 
   <!-- plugin css -->
-  <link href="{{ asset('build/plugins/perfect-scrollbar/perfect-scrollbar.css') }}" rel="stylesheet" />
+    <link href="{{ asset('build/plugins/perfect-scrollbar/perfect-scrollbar.css') }}" rel="stylesheet" />
 
-  @stack('plugin-styles')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.23.0/sweetalert2.css" integrity="sha512-/j+6zx45kh/MDjnlYQL0wjxn+aPaSkaoTczyOGfw64OB2CHR7Uh5v1AML7VUybUnUTscY5ck/gbGygWYcpCA7w==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+
+    @stack('plugin-styles')
 
   <!-- CSS for LTR layout-->
   @vite(['resources/sass/app.scss', 'resources/css/custom.css'])
@@ -81,10 +86,14 @@
 
     <!-- base js -->
     @vite(['resources/js/app.js'])
+    <script src="{{ asset('js/jquery.min.js') }}"></script>
     <script src="{{ asset('build/plugins/bootstrap/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('build/plugins/lucide/lucide.min.js') }}"></script>
     <script src="{{ asset('build/plugins/perfect-scrollbar/perfect-scrollbar.min.js') }}"></script>
-    <!-- end base js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.23.0/sweetalert2.min.js" integrity="sha512-pnPZhx5S+z5FSVwy62gcyG2Mun8h6R+PG01MidzU+NGF06/ytcm2r6+AaWMBXAnDHsdHWtsxS0dH8FBKA84FlQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<!-- end base js -->
 
     <!-- plugin js -->
     @stack('plugin-scripts')

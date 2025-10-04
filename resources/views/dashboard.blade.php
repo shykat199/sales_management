@@ -1,5 +1,5 @@
 @extends('layout.master')
-
+@section('title','Dashboard')
 @push('plugin-styles')
   <link href="{{ asset('build/plugins/flatpickr/flatpickr.min.css') }}" rel="stylesheet" />
 @endpush
@@ -196,7 +196,7 @@
         </div>
         <p class="text-secondary">Sales are activities related to selling or the number of goods or services sold in a given time period.</p>
         <div id="monthlySalesChart"></div>
-      </div> 
+      </div>
     </div>
   </div>
   <div class="col-lg-5 col-xl-4 grid-margin stretch-card">
@@ -415,7 +415,7 @@
             </tbody>
           </table>
         </div>
-      </div> 
+      </div>
     </div>
   </div>
 </div> <!-- row -->

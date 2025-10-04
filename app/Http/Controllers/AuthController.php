@@ -19,7 +19,7 @@ class AuthController extends FortifyLogin
                 if (\Auth::check()) {
                     return redirect()->route('dashboard');
                 }
-                return view('pages.auth.login');
+                return view('auth.login');
             }
         };
     }
