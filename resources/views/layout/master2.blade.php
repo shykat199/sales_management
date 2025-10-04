@@ -1,12 +1,4 @@
 <!DOCTYPE html>
-<!--
-Template Name: NobleUI - Laravel Admin Dashboard Template
-Author: NobleUI
-Website: https://nobleui.com
-Contact: nobleui.team@gmail.com
-Purchase: https://1.envato.market/nobleui_laravel
-License: You must have a valid license to legally use the template for your project.
--->
 <html>
 <head>
   <meta charset="UTF-8">
@@ -32,10 +24,10 @@ License: You must have a valid license to legally use the template for your proj
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
   <!-- End fonts -->
-  
+
   <!-- CSRF Token -->
   <meta name="_token" content="{{ csrf_token() }}">
-  
+
   <link rel="shortcut icon" href="{{ asset('/favicon.ico') }}">
 
   <!-- Splash Screen -->
@@ -43,18 +35,17 @@ License: You must have a valid license to legally use the template for your proj
 
   <!-- plugin css -->
   <link href="{{ asset('build/plugins/perfect-scrollbar/perfect-scrollbar.css') }}" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   @stack('plugin-styles')
 
   <!-- CSS for LTR layout-->
   @vite(['resources/sass/app.scss', 'resources/css/custom.css'])
 
-  <!-- CSS for RTL layout-->
-  <!-- @vite(['resources/rtl-css/app-rtl.css', 'resources/rtl-css/custom-rtl.css']) -->
-
   @stack('style')
 </head>
 <body data-base-url="{{url('/')}}">
+@include('sweetalert::alert')
 
   <script>
     // Create splash screen container
@@ -64,7 +55,7 @@ License: You must have a valid license to legally use the template for your proj
         <div class="logo"></div>
         <div class="spinner"></div>
       </div>`;
-    
+
     // Insert splash screen as the first child of the body
     document.body.insertBefore(splash, document.body.firstChild);
 

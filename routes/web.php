@@ -1,10 +1,18 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 
-Route::get('/', function () {
-    return view('dashboard');
 
+Route::controller(AuthController::class)->group(function(){
+    Route::get('/login','create')->name('login');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::controller(DashboardController::class)->group(function(){
+        Route::get('/','index')->name('dashboard');
+    });
 });
 
 Route::group(['prefix' => 'email'], function(){

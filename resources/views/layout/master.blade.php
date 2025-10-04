@@ -1,12 +1,4 @@
 <!DOCTYPE html>
-<!--
-Template Name: NobleUI - Laravel Admin Dashboard Template
-Author: NobleUI
-Website: https://nobleui.com
-Contact: nobleui.team@gmail.com
-Purchase: https://1.envato.market/nobleui_laravel
-License: You must have a valid license to legally use the template for your project.
--->
 <html>
 <head>
   <meta charset="UTF-8">
@@ -32,10 +24,10 @@ License: You must have a valid license to legally use the template for your proj
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
   <!-- End fonts -->
-  
+
   <!-- CSRF Token -->
   <meta name="_token" content="{{ csrf_token() }}">
-  
+
   <link rel="shortcut icon" href="{{ asset('/favicon.ico') }}">
 
   <!-- Splash Screen -->
@@ -56,6 +48,8 @@ License: You must have a valid license to legally use the template for your proj
 </head>
 <body data-base-url="{{url('/')}}">
 
+@include('sweetalert::alert')
+
   <script>
     // Create splash screen container
     var splash = document.createElement("div");
@@ -64,7 +58,7 @@ License: You must have a valid license to legally use the template for your proj
         <div class="logo"></div>
         <div class="spinner"></div>
       </div>`;
-    
+
     // Insert splash screen as the first child of the body
     document.body.insertBefore(splash, document.body.firstChild);
 
