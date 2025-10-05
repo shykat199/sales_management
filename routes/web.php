@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\SaleController;
 
 
 Route::controller(AuthController::class)->group(function(){
@@ -31,7 +32,20 @@ Route::middleware('auth')->group(function () {
         Route::put('/update-product/{slug}','updateProduct')->name('update-product');
         Route::get('/delete-product/{id}','deleteProduct')->name('delete-product');
         Route::get('/product-restore/{id}', 'restore')->name('product-restore');
+    });
 
+    Route::controller(SaleController::class)->name('sale.')->group(function(){
+        Route::get('/sale-list','index')->name('sale-list');
+        Route::get('/search-customers','searchCustomer')->name('search-customers');
+        Route::get('/search-products', 'searchProduct')->name('search-products');
+        Route::get('/sale-create','createSale')->name('create-sale');
+        Route::get('/sale-details/{slug}','editSale')->name('sale-details');
+
+
+        Route::post('/save-customer-sale','saveSale')->name('save-customer-sale');
+        Route::put('/update-sale/{slug}','updateSale')->name('update-sale');
+        Route::get('/delete-sale/{id}','deleteSale')->name('delete-sale');
+        Route::get('/sale-restore/{id}', 'restore')->name('sale-restore');
     });
 });
 

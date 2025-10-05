@@ -21,7 +21,7 @@
         <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Add New Product</h5>
+                    <h5 class="mb-0">{{$isEdit ? 'Update New Product' : 'Add New Product'}}</h5>
                 </div>
                 <div class="card-body" id="productForm">
                     <form id="productFormElement" enctype="multipart/form-data" method="POST" action="{{ $isEdit ? route('product.update-product', $product->slug) : route('product.save-product') }}">

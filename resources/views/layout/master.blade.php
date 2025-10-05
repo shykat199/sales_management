@@ -7,8 +7,9 @@
     <meta name="description" content="{{env('APP_NAME')}}">
 	<meta name="author" content="{{env('APP_NAME')}}">
 	<meta name="keywords" content="{{env('APP_NAME')}}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-  <title>{{env('APP_NAME')}} | @yield('title')</title>
+    <title>{{env('APP_NAME')}} | @yield('title')</title>
 
   <!-- color-modes:js -->
   @vite(['resources/js/pages/color-modes.js'])
