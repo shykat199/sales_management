@@ -4,55 +4,70 @@
 @endpush
 
 @section('content')
-    @php
-        $isEdit = isset($sale) && $sale;
-    @endphp
     <div class="row">
         <div class="col-md-12 grid-margin stretch-card">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">{{$isEdit ? 'Update New Sale' : 'Add New Sale'}}</h5>
+                    <h5 class="mb-0">Update New Sale Record</h5>
                 </div>
                 <div class="card-body" id="saleForm">
                     <form id="orderForm">
+                        <input type="hidden" name="saleId" value="{{$sale->id}}">
                         <!-- Customer Select -->
                         <div class="mb-3">
                             <label class="form-label">Select Customer</label>
                             <select class="form-select" id="customer_id" name="customer_id">
-                                <option value="">-- Select Customer --</option>
+                                @if($sale->customer)
+                                    <option value="{{$sale->customer->id}}">{{$sale->customer->name}}</option>
+                                @else
+                                    <option value="">-- Select Customer --</option>
+                                @endif
+
                             </select>
                         </div>
 
                         <!-- Product Rows -->
                         <div id="productRows">
-                            <div class="row g-2 align-items-end product-row mb-2">
-                                <div class="col-md-3">
-                                    <label class="form-label">Product</label>
-                                    <select class="form-select product-select" name="products[0][id]" style="width:100%;">
-                                        <option value="">-- Select Product --</option>
-                                    </select>
+                            @foreach($sale->items as $key => $item)
+                                <div class="row g-2 align-items-end product-row mb-2">
+                                    <input type="hidden" class="form-control" name="products[{{$key}}][salesItemId]" value="{{$item->id }}">
+                                    <div class="col-md-3">
+                                        <label class="form-label">Product</label>
+                                        <select class="form-select product-select" name="products[{{$key}}][id]"
+                                                style="width:100%;">
+                                            @if($item->product)
+                                                <option value="{{$item->product->id}}"
+                                                        selected>{{$item->product->name}}</option>
+                                            @else
+                                                <option value="">-- Select Product --</option>
+                                            @endif
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Qty</label>
+                                        <input type="number" min="1" class="form-control qty"
+                                               name="products[{{$key}}][qty]" value="{{$item->quantity ?? 1}}">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Price</label>
+                                        <input type="number" step="0.01" class="form-control price"
+                                               value="{{$item->price ?? 1}}" name="products[{{$key}}][price]" readonly>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Discount</label>
+                                        <input type="number" step="0.01" class="form-control discount"
+                                               value="{{$item->discount ?? 0}}" name="products[{{$key}}][discount]">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Total</label>
+                                        <input type="number" step="0.01" class="form-control total"
+                                               value="{{$item->total ?? ''}}" name="products[{{$key}}][total]" readonly>
+                                    </div>
+                                    <div class="col-md-1">
+                                        <button type="button" class="btn btn-danger removeRow">X</button>
+                                    </div>
                                 </div>
-
-                                <div class="col-md-2">
-                                    <label class="form-label">Qty</label>
-                                    <input type="number" min="1" class="form-control qty" name="products[0][qty]" value="1">
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="form-label">Price</label>
-                                    <input type="number" step="0.01" class="form-control price" name="products[0][price]" readonly>
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="form-label">Discount</label>
-                                    <input type="number" step="0.01" class="form-control discount" name="products[0][discount]" value="0">
-                                </div>
-                                <div class="col-md-2">
-                                    <label class="form-label">Total</label>
-                                    <input type="number" step="0.01" class="form-control total" name="products[0][total]" readonly>
-                                </div>
-                                <div class="col-md-1">
-                                    <button type="button" class="btn btn-danger removeRow">X</button>
-                                </div>
-                            </div>
+                            @endforeach
                         </div>
 
                         <!-- Add More Button -->
@@ -61,17 +76,24 @@
                         <!-- Grand Total -->
                         <div class="mb-3">
                             <label class="form-label">Grand Total</label>
-                            <input type="number" step="0.01" class="form-control" id="grandTotal" name="grandTotal" readonly>
+                            <input type="number" step="0.01" class="form-control" id="grandTotal" name="grandTotal" value="{{$sale->total_amount ?? ''}}" readonly>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Sale Comment</label>
-                            <textarea name="comment" class="form-control" id="saleComment" rows="4" placeholder="Enter sale comment"></textarea>
+                            @if(!empty($sale->note))
+                                @foreach($sale->note as $note)
+                                    <textarea name="comment" class="form-control" id="saleComment" rows="4" placeholder="Enter sale comment">{{$note->note}}</textarea>
+                                @endforeach
+                            @else
+                                <textarea name="comment" class="form-control" id="saleComment" rows="4" placeholder="Enter sale comment"></textarea>
+                            @endif
+
                         </div>
 
                         <!-- Submit -->
                         <button type="submit" id="submitBtn" class="btn btn-primary">
-                            <span class="btn-text">Submit</span>
+                            <span class="btn-text">Update</span>
                             <span class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
                         </button>
                     </form>
@@ -105,7 +127,7 @@
                     processResults: function (data) {
                         return {
                             results: data.map(function (item) {
-                                return { id: item.id, text: item.name };
+                                return {id: item.id, text: item.name};
                             })
                         };
                     },
@@ -123,7 +145,7 @@
                     dataType: "json",
                     delay: 250,
                     data: function (params) {
-                        return { q: params.term };
+                        return {q: params.term};
                     },
                     processResults: function (data) {
                         return {
@@ -139,9 +161,7 @@
                     },
                     cache: true
                 }
-            })
-                // Event when product selected
-                .on("select2:select", function (e) {
+            }).on("select2:select", function (e) {
                     let data = e.params.data;
                     let row = $(this).closest(".product-row");
 
@@ -160,7 +180,7 @@
 
         initProductSelect2(".product-select");
 
-        let rowIndex = 1;
+        let rowIndex = `{{count($sale->items)}}`;
 
         $("#addRow").click(function () {
             let newRow = `
@@ -198,14 +218,14 @@
             rowIndex++;
         });
 
-        $(document).on("click", ".removeRow", function(){
+        $(document).on("click", ".removeRow", function () {
             if ($(".product-row").length > 1) {
                 $(this).closest(".product-row").remove();
                 calculateGrandTotal();
             }
         });
 
-        $(document).on("input", ".qty, .discount", function(){
+        $(document).on("input", ".qty, .discount", function () {
             let row = $(this).closest(".product-row");
             calculateRowTotal(row)
             calculateGrandTotal();
@@ -226,13 +246,13 @@
 
         function calculateGrandTotal() {
             let grand = 0;
-            $(".total").each(function(){
+            $(".total").each(function () {
                 grand += parseFloat($(this).val()) || 0;
             });
             $("#grandTotal").val(grand.toFixed(2));
         }
 
-        document.getElementById("orderForm").addEventListener("submit", function(e) {
+        document.getElementById("orderForm").addEventListener("submit", function (e) {
             e.preventDefault();
 
             let isValid = true;
@@ -263,8 +283,7 @@
                 console.log('At least')
 
 
-            }
-            else {
+            } else {
                 productRows.forEach((row, index) => {
                     let product = row.querySelector(".product-select").value;
                     let price = row.querySelector(".price").value;
@@ -313,7 +332,7 @@
             const formData = new FormData(this);
             const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-            fetch("{{ route('sale.save-customer-sale') }}", {
+            fetch("{{ route('sale.update-sale') }}", {
                 method: "POST",
                 headers: {
                     'X-CSRF-TOKEN': token

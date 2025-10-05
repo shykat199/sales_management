@@ -39,10 +39,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/search-customers','searchCustomer')->name('search-customers');
         Route::get('/search-products', 'searchProduct')->name('search-products');
         Route::get('/sale-create','createSale')->name('create-sale');
-        Route::get('/sale-details/{slug}','editSale')->name('sale-details');
+        Route::get('/sale-details/{id}','editSale')->name('sale-details');
 
         Route::post('/save-customer-sale','saveSale')->name('save-customer-sale');
-        Route::put('/update-sale/{slug}','updateSale')->name('update-sale');
+        Route::post('/update-sale','updateSale')->name('update-sale');
         Route::get('/delete-sale/{id}','deleteSale')->name('delete-sale');
         Route::get('/sale-restore/{id}', 'restore')->name('sale-restore');
     });

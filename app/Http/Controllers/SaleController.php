@@ -177,63 +177,113 @@ class SaleController extends Controller
         }
     }
 
-    public function editProduct($slug)
+    public function editSale($id)
     {
-        $product = Product::withTrashed()->where('slug', $slug)->first();
-        if (!$product) {
+        $sales = Sale::with(['customer','items.product','note'])->withTrashed()->where('id', $id)->first();
+        if (!$sales) {
             abort(404);
         }
-        $data['product']=$product;
-        $data['title']='Update Product';
-        return view('product.action',$data);
+        $data['sale']=$sales;
+        $data['title']='Update Sale record';
+        return view('sale.edit-action',$data);
     }
 
-    public function updateProduct(Request $request, $slug)
+    public function updateSale(Request $request)
     {
+        $validated = $request->validate([
+            'saleId'            => 'required|exists:sales,id',
+            'customer_id'       => 'required|exists:users,id',
+            'products'          => 'required|array|min:1',
+            'comment'           => 'nullable|string',
+            'products.*.id'       => 'required|exists:products,id',
+            'products.*.qty'      => 'required|numeric|min:1',
+            'products.*.price'    => 'required|numeric|min:0',
+            'products.*.discount' => 'nullable|numeric|min:0|max:100',
+            'products.*.total'    => 'required|numeric|min:0',
+            'grandTotal'          => 'required|numeric|min:0',
+        ]);
+
+        DB::beginTransaction();
 
         try {
+            $sale = Sale::findOrFail($validated['saleId']);
 
-            $product = Product::where('slug', $slug)->firstOrFail();
+            $sale->items()->delete();
 
-            $request->validate([
-                'name' => 'required|string|min:3',
-                'sku' => 'required|string|min:2',
-                'price' => 'required|numeric|min:0',
-                'quantity' => 'required|integer|min:0',
-                'status' => 'required|in:0,1',
-                'description' => 'required|string|min:5',
-                'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
+            // Recalculate totals
+            $totals = calculateSaleTotal($validated['products']);
+
+            // Update sale
+            $sale->update([
+                'customer_id'    => $validated['customer_id'],
+                'subtotal'       => $totals['subtotal'],
+                'discount_total' => $totals['discount_total'],
+                'total_amount'   => $validated['grandTotal'],
             ]);
 
-            $product->name = $request->name;
-            $product->sku = $request->sku;
-            $product->price = $request->price;
-            $product->quantity = $request->quantity;
-            $product->status = $request->status;
-            $product->description = $request->description;
+            foreach ($validated['products'] as $item) {
+                if (!empty($item['salesItemId'])) {
+                    $salesItem = SaleItem::findOrFail($item['salesItemId']);
 
+                    $diff = $item['qty'] - $salesItem->quantity;
+                    if ($diff > 0) {
+                        Product::where('id', $item['id'])->decrement('quantity', $diff);
+                    } elseif ($diff < 0) {
+                        Product::where('id', $item['id'])->increment('quantity', abs($diff));
+                    }
 
-            if ($request->hasFile('image')) {
-                if ($product->image && Storage::disk('public')->exists($product->image)) {
-                    Storage::disk('public')->delete($product->image);
+                    $salesItem->update([
+                        'product_id' => $item['id'],
+                        'quantity'   => $item['qty'],
+                        'price'      => $item['price'],
+                        'discount'   => $item['discount'] ?? 0,
+                        'total'      => $item['total'],
+                    ]);
+                } else {
+
+                    SaleItem::create([
+                        'sale_id'    => $sale->id,
+                        'product_id' => $item['id'],
+                        'quantity'   => $item['qty'],
+                        'price'      => $item['price'],
+                        'discount'   => $item['discount'] ?? 0,
+                        'total'      => $item['total'],
+                    ]);
+                    Product::where('id', $item['id'])->decrement('quantity', $item['qty']);
                 }
-                $file = $request->file('image');
-                $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-                $extension = $file->getClientOriginalExtension();
-                $fileNameToStore = $filename . '_' . time() . '.' . $extension;
-                $file->storeAs('products', $fileNameToStore, 'public');
-                $product->image = 'products/' . $fileNameToStore;
             }
 
-            $product->save();
+            // Notes
+            if ($request->filled('comment')) {
+                if ($sale->note()->exists()) {
+                    // Update the most recent note
+                    $sale->note()->latest()->first()->update([
+                        'note' => $request->comment,
+                    ]);
+                } else {
+                    // Create a new note if none exist
+                    $sale->note()->create([
+                        'note' => $request->comment,
+                    ]);
+                }
+            }
 
 
-            toast('Product updated successfully!', 'success');
+            DB::commit();
 
-            return redirect()->route('product.product-details', $product->slug);
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Sale updated successfully',
+                'sale_id' => $sale->id,
+            ], 200);
 
-        }catch (\Exception $exception){
-            dd($exception->getMessage());
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Update failed.',
+                'error'   => $e->getMessage()
+            ], 500);
         }
     }
 
