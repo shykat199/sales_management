@@ -119,7 +119,7 @@
                 placeholder: "-- Select Product --",
                 allowClear: true,
                 ajax: {
-                    url: "/search-products",
+                    url: `{{route('sale.search-products')}}`,
                     dataType: "json",
                     delay: 250,
                     data: function (params) {

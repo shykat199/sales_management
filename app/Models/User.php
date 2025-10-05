@@ -24,6 +24,11 @@ class User extends Authenticatable
         'address'
     ];
 
+    public function setNameAttribute($value)
+    {
+        $this->attributes['name'] = ucwords(strtolower($value));
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *

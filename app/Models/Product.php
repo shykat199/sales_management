@@ -87,6 +87,11 @@ class Product extends Model
         return ucwords($this->attributes['name']);
     }
 
+    public function setNameAttribute($value)
+    {
+        $this->attributes['name'] = ucwords(strtolower($value));
+    }
+
     public function note()
     {
         return $this->morphOne(Note::class, 'noteable');

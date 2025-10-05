@@ -192,6 +192,12 @@
                         }
                     },
                     {
+                        targets: 4,
+                        render: function (data, type, row, meta) {
+                            return row.price + " BDT"
+                        }
+                    },
+                    {
                         targets: 6,
                         render: function (data, type, row, meta) {
                             return row.stock_status

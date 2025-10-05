@@ -151,14 +151,15 @@ class SaleController extends Controller
 
         DB::beginTransaction();
         try {
+
+            $totals = calculateSaleTotal($validated['products']);
+
             $sale = Sale::create([
                 'user_id'        => auth()->id(),
                 'customer_id'    => $validated['customer_id'],
                 'sale_date'      => now(),
-                'subtotal'       => collect($validated['products'])->sum('price'),
-                'discount_total' => collect($validated['products'])->sum(function ($p) {
-                    return ($p['price'] * $p['qty']) * ($p['discount'] ?? 0) / 100;
-                }),
+                'subtotal'       => $totals['subtotal'],
+                'discount_total' => $totals['discount_total'],
                 'total_amount'   => $validated['grandTotal'],
             ]);
 

@@ -16,6 +16,11 @@ class Sale extends Model
         'status',
     ];
 
+    public function getTotalPriceAttribute()
+    {
+        return number_format($this->attributes['total_amount'], 2, '.', ',').' BDT';
+    }
+
     public function note()
     {
         return $this->morphMany(Note::class, 'noteable');
