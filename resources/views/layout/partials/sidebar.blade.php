@@ -45,7 +45,7 @@
             </li>
 
             <li class="nav-item">
-              <a href="{{ route('product.create-product') }}" class="nav-link {{ active_class(['create-product']) }}">Create Product</a>
+              <a href="{{ route('product.create-product') }}" class="nav-link {{ active_class(['product-create']) }}">Create Product</a>
             </li>
 
           </ul>

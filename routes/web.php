@@ -25,10 +25,10 @@ Route::middleware('auth')->group(function () {
 
     Route::controller(ProductController::class)->name('product.')->group(function(){
         Route::get('/product-list','index')->name('product-list');
-        Route::get('/create-product','createProduct')->name('create-product');
-        Route::get('/product-details/{slug}','productDetails')->name('product-details');
+        Route::get('/product-create','createProduct')->name('create-product');
+        Route::get('/product-details/{slug}','editProduct')->name('product-details');
         Route::post('/save-product','saveProduct')->name('save-product');
-        Route::put('/update-product/{id}','updateProduct')->name('update-product');
+        Route::put('/update-product/{slug}','updateProduct')->name('update-product');
         Route::get('/delete-product/{id}','deleteProduct')->name('delete-product');
         Route::get('/product-restore/{id}', 'restore')->name('product-restore');
 

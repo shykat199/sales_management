@@ -68,3 +68,29 @@ function getCountryName($item) {
     }
     return '';
 }
+
+function generate_sku(?string $title = null): string
+{
+    // Base from title (letters & numbers only), up to 3 chars
+    $base = $title
+        ? preg_replace('/[^A-Z0-9]/', '', Str::upper(Str::slug($title, '')))
+        : 'PRD';
+    $base = $base ?: 'PRD';
+    $base = Str::limit($base, 3, ''); // max 3 chars
+
+    // Remaining length for random part
+    $remaining = 8 - strlen($base); // total SKU = 8 chars
+
+    for ($i = 0; $i < 20; $i++) {
+        // Generate random alphanumeric string for remaining chars
+        $rand = strtoupper(substr(Str::random($remaining), 0, $remaining));
+        $candidate = $base . $rand;
+
+        if (! \App\Models\Product::where('sku', $candidate)->exists()) {
+            return $candidate;
+        }
+    }
+
+    // Fallback: just random 8-char SKU
+    return strtoupper(Str::random(8));
+}

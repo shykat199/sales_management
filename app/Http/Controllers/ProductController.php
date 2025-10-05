@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProductRequest;
 use App\Http\Requests\UserFormRequet;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Storage;
 use Yajra\DataTables\Facades\DataTables;
 
 class ProductController extends Controller
@@ -92,54 +95,95 @@ class ProductController extends Controller
         ]);
     }
 
-    public function saveUser(UserFormRequet $request)
+    public function createProduct()
+    {
+        $data['product']=null;
+        $data['title']='Add Product';
+        return view('product.action',$data);
+    }
+
+    public function saveProduct(ProductRequest $request)
     {
         $validated = $request->validated();
 
-        User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'address' => $validated['address'],
-            'password' => \Hash::make($validated['password']),
-            'role' => $validated['role'],
-        ]);
+        $product = new Product();
+        $product->name = $request->name;
+        $product->slug = Str::slug($request->name.'-'.time());
+        $product->sku = $request->sku;
+        $product->price = $request->price;
+        $product->quantity = $request->quantity;
+        $product->status = $request->status;
+        $product->description = $request->description;
 
-        toast('User created successfully!','success');
-        return redirect()->back();
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+            $extension = $file->getClientOriginalExtension();
+            $fileNameToStore = $filename . '_' . time() . '.' . $extension;
+            $file->storeAs('products', $fileNameToStore, 'public');
+            $product->image = 'products/' . $fileNameToStore;
+        }
+
+        $product->save();
+
+        toast('Product created successfully!','success');
+        return redirect()->route('product.product-list');
     }
 
-    public function updateUser(Request $request, $id)
+    public function editProduct($slug)
+    {
+        $product = Product::withTrashed()->where('slug', $slug)->first();
+        if (!$product) {
+            abort(404);
+        }
+        $data['product']=$product;
+        $data['title']='Update Product';
+        return view('product.action',$data);
+    }
+
+    public function updateProduct(Request $request, $slug)
     {
 
         try {
 
+            $product = Product::where('slug', $slug)->firstOrFail();
+
             $request->validate([
-                'name' => 'required|string|min:3|max:100',
-                'email' => [
-                    'required',
-                    'email',
-                ],
-                'password' => 'nullable|string|min:8',
-                'role' => 'required|in:1,2',
-                'address' => 'nullable|string|max:255',
+                'name' => 'required|string|min:3',
+                'sku' => 'required|string|min:2',
+                'price' => 'required|numeric|min:0',
+                'quantity' => 'required|integer|min:0',
+                'status' => 'required|in:0,1',
+                'description' => 'required|string|min:5',
+                'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
             ]);
 
-            $user = User::find($id);
+            $product->name = $request->name;
+            $product->sku = $request->sku;
+            $product->price = $request->price;
+            $product->quantity = $request->quantity;
+            $product->status = $request->status;
+            $product->description = $request->description;
 
-            if (!$user){
-                abort(404);
+
+            if ($request->hasFile('image')) {
+                if ($product->image && Storage::disk('public')->exists($product->image)) {
+                    Storage::disk('public')->delete($product->image);
+                }
+                $file = $request->file('image');
+                $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $extension = $file->getClientOriginalExtension();
+                $fileNameToStore = $filename . '_' . time() . '.' . $extension;
+                $file->storeAs('products', $fileNameToStore, 'public');
+                $product->image = 'products/' . $fileNameToStore;
             }
-            $user->update([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => isset($request->password) ? \Hash::make($request->password) : $user->password,
-                'role' => $request->role,
-                'address' => $request->address,
-            ]);
 
-            toast('User updated successfully!', 'success');
+            $product->save();
 
-            return redirect()->back();
+
+            toast('Product updated successfully!', 'success');
+
+            return redirect()->route('product.product-details', $product->slug);
 
         }catch (\Exception $exception){
             dd($exception->getMessage());

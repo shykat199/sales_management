@@ -1,5 +1,5 @@
 @extends('layout.master')
-@section('title','User List')
+@section('title','Product List')
 @push('plugin-styles')
   <link href="{{ asset('build/plugins/datatables.net-bs5/dataTables.bootstrap5.min.css') }}" rel="stylesheet" />
 @endpush
