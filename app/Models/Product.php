@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'name',
         'sku',
@@ -13,6 +15,17 @@ class Product extends Model
         'quantity',
         'description',
         'status',
-        'slug'
+        'slug',
+        'image'
     ];
+
+    public function getPriceAttribute()
+    {
+        return number_format($this->attributes['price'], 2, '.', ',');
+    }
+
+    public function getNameAttribute()
+    {
+        return ucwords($this->attributes['name']);
+    }
 }
