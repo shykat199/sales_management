@@ -267,7 +267,6 @@
                     })
                 }
             }
-
         });
 
         $(document).ready(function () {
@@ -280,7 +279,11 @@
                 });
             });
 
-
+            $('#editUserRole').select2({
+                minimumResultsForSearch: Infinity,
+                width: '100%',
+                dropdownParent: $('#editBlogModal')
+            });
         });
 
     </script>
@@ -349,7 +352,6 @@
                 }
             });
 
-            // Function to show error
             function showError(input, message) {
                 input.classList.add('is-invalid');
                 const feedback = input.parentElement.querySelector('.invalid-feedback') ||
@@ -390,29 +392,27 @@
         });
 
         document.addEventListener('DOMContentLoaded', () => {
-            const editForm = document.getElementById('editUserForm'); // make sure this ID matches your edit form
+            const editForm = document.getElementById('editUserForm');
 
             document.addEventListener('click', function(e) {
-                const button = e.target.closest('a[data-bs-target="#editBlogModal"]'); // the edit button
+                const button = e.target.closest('a[data-bs-target="#editBlogModal"]');
                 if (!button) return;
 
                 const name = button.getAttribute('data-name');
                 const email = button.getAttribute('data-email');
                 const role = button.getAttribute('data-role');
-                const address = button.getAttribute('data-address'); // optional
+                const address = button.getAttribute('data-address');
                 const url = button.getAttribute('data-url');
 
-                // Populate modal form fields
                 editForm.querySelector('#editUserName').value = name;
                 editForm.querySelector('#editUserEmail').value = email;
                 editForm.querySelector('#editUserRole').value = role;
+                $('#editUserRole').trigger('change');
                 editForm.querySelector('#editUserAddress').value = address || '';
 
-                // Set form action URL
                 editForm.setAttribute('action', url);
             });
         });
-
 
         document.addEventListener('DOMContentLoaded', () => {
             const editForm = document.getElementById('editUserForm');
@@ -420,7 +420,6 @@
             const passwordInput = document.getElementById('editUserPassword');
             const passwordIcon = document.getElementById('editPasswordToggleIcon');
 
-            // Toggle password visibility
             if (togglePasswordBtn) {
                 togglePasswordBtn.addEventListener('click', () => {
                     const type = passwordInput.type === 'password' ? 'text' : 'password';
@@ -430,7 +429,6 @@
                 });
             }
 
-            // Form validation
             editForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 clearValidation(editForm);
@@ -486,7 +484,6 @@
                 });
             }
 
-            // Remove error on input
             const inputs = editForm.querySelectorAll('.form-control, .form-select');
             inputs.forEach(input => {
                 input.addEventListener('input', () => {
