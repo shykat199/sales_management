@@ -126,6 +126,18 @@ class ProductController extends Controller
 
         $product->save();
 
+        if ($request->filled('comment')) {
+            $product->note()->updateOrCreate(
+                [
+                    'noteable_id' => $product->id,
+                    'noteable_type' => Product::class
+                ],
+                [
+                    'note' => $request->comment
+                ]
+            );
+        }
+
         toast('Product created successfully!','success');
         return redirect()->route('product.product-list');
     }

@@ -11,4 +11,9 @@ class Note extends Model
         'noteable_type',
         'note',
     ];
+
+    public function noteable()
+    {
+        return $this->morphTo();
+    }
 }

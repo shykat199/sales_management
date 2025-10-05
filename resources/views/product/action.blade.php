@@ -89,6 +89,12 @@
                                 @error('description') <p class="text-danger">{{ $message }}</p> @enderror
                             </div>
 
+                            <!-- Comment -->
+                            <div class="col-12">
+                                <label for="productComment" class="form-label">Comment</label>
+                                <textarea name="comment" class="form-control" id="productComment" rows="4" placeholder="Enter product comment"></textarea>
+                            </div>
+
                             <!-- Submit / Action Buttons -->
                             <div class="col-12 text-end">
                                 <button type="submit" class="btn btn-primary"><i class="fa fa-save"></i> {{ $isEdit ? 'Update' : 'Save' }} Product</button>

@@ -86,4 +86,9 @@ class Product extends Model
     {
         return ucwords($this->attributes['name']);
     }
+
+    public function note()
+    {
+        return $this->morphOne(Note::class, 'noteable');
+    }
 }
