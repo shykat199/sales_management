@@ -20,31 +20,26 @@ class SaleController extends Controller
 
         if ($request->ajax()) {
 
-            $type = $request->get('type');
-            $data = Product::query();
+            $data = Sale::with(['customer','createdBy'])->withTrashed();
 
-            switch ($type) {
-                case 'active':
-                    $data->where('status', ACTIVE_STATUS);
-                    break;
-                case 'inactive':
-                    $data->where('status', INACTIVE_STATUS);
-                    break;
-                case 'out-of-stock':
-                    $data->where('quantity', 0);
-                    break;
-                case 'trash':
-                    $data->onlyTrashed();
-                    break;
-                default:
-                    $data->withTrashed();
-                    break;
+            if ($request->filled('customer')) {
+                $data->where('customer_id', $request->customer);
+            }
+
+            if ($request->filled('product')) {
+                $data->whereHas('items', function($q) use ($request) {
+                    $q->where('product_id', $request->product);
+                });
+            }
+
+            if ($request->filled('start_date') && $request->filled('end_date')) {
+                $data->whereBetween('sale_date', [$request->start_date, $request->end_date]);
             }
 
             return DataTables::of($data)
                 ->addColumn('action', function ($row) {
-                    $editUrl = route('product.product-details', $row->slug);
-                    $deleteUrl = route('product.delete-product', $row->id);
+                    $editUrl = route('sale.sale-details', $row->id);
+                    $deleteUrl = route('sale.delete-sale', $row->id);
                     $actions = '<div class="d-flex align-items-center gap-2">';
 
                     $actions .= '<a href="' . $editUrl . '">
@@ -58,7 +53,7 @@ class SaleController extends Controller
                     }
 
                     if ($row->trashed()) {
-                        $restoreUrl = route('product.product-restore', $row->id);
+                        $restoreUrl = route('sale.sale-restore', $row->id);
                         $actions .= '<a href="javascript:void(0);" onclick="showSwal(\'passing-parameter-execute-restore\', \'' . e($restoreUrl) . '\')">
                                         <i class="fa-solid fa-recycle fa-2x text-success" aria-hidden="true"></i>
                                      </a>';
@@ -68,33 +63,11 @@ class SaleController extends Controller
 
                     return $actions;
                 })
-                ->addColumn('image', function ($row) {
-                    $imageUrl = !empty($row->image) ? asset('storage/' . $row->image) : asset('default/no-product.png');
-                    return '<img src="'.$imageUrl.'" alt="Product Image" width="60" height="60" style="object-fit: cover; border-radius: 6px;">';
-                })
-                ->addColumn('stock_status', function ($row) {
-                    return $row->quantity > 0
-                        ? '<span class="badge border border-success text-success">In Stock</span>'
-                        : '<span class="badge border border-danger text-danger">Out Of Stock</span>';
-                })
-                ->rawColumns(['action','image','stock_status'])
+                ->rawColumns(['action'])
                 ->make(true);
         }
 
-        $counts = Product::selectRaw("
-        COUNT(*) as total,
-        COUNT(CASE WHEN status = 1 THEN 1 END) as active,
-        COUNT(CASE WHEN status = 2 THEN 1 END) as inactive,
-        COUNT(CASE WHEN quantity = 0 THEN 1 END) as out_of_stock
-        ")
-            ->first()
-            ->toArray();
-
-        $counts['trashed'] = Product::onlyTrashed()->count();
-
-        return view('product.index',[
-            'counts' => $counts,
-        ]);
+        return view('sale.index');
     }
 
     public function createSale()
@@ -133,7 +106,6 @@ class SaleController extends Controller
             })
         );
     }
-
 
     public function saveSale(Request $request)
     {
@@ -265,22 +237,28 @@ class SaleController extends Controller
         }
     }
 
-    public function deleteProduct($id)
+    public function deleteSale($id)
     {
-        $product = Product::find($id);
-        if (!$product) {
+        $sale = Sale::find($id);
+        if (!$sale) {
             abort(404);
         }
-        $product->delete();
-        toast('Product deleted successfully!','success');
+        SaleItem::where('sale_id', $id)->delete();
+        $sale->delete();
+        toast('Sale record deleted successfully!','success');
         return redirect()->back();
     }
 
     public function restore($id)
     {
-        $product = Product::onlyTrashed()->findOrFail($id);
-        $product->restore();
-        toast('Product restored successfully.!','success');
+        $sale = Sale::onlyTrashed()->findOrFail($id);
+
+        $sale->items()->withTrashed()->restore();
+
+        $sale->restore();
+
+        toast('Sale record restored successfully!', 'success');
         return redirect()->back();
     }
+
 }

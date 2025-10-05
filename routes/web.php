@@ -41,7 +41,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/sale-create','createSale')->name('create-sale');
         Route::get('/sale-details/{slug}','editSale')->name('sale-details');
 
-
         Route::post('/save-customer-sale','saveSale')->name('save-customer-sale');
         Route::put('/update-sale/{slug}','updateSale')->name('update-sale');
         Route::get('/delete-sale/{id}','deleteSale')->name('delete-sale');

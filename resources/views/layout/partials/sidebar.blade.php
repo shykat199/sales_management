@@ -66,13 +66,11 @@
             <div class="collapse {{ show_class(['sale-*']) }}" data-bs-parent="#sidebarNav" id="sale">
                 <ul class="nav sub-menu">
                     <li class="nav-item">
-                        <a href="{{ route('sale.sale-list') }}"
-                           class="nav-link {{ active_class(['sale-list']) }}">Sale List</a>
+                        <a href="{{ route('sale.sale-list') }}" class="nav-link {{ active_class(['sale-list']) }}">Sale List</a>
                     </li>
 
                     <li class="nav-item">
-                        <a href="{{ route('sale.create-sale') }}"
-                           class="nav-link {{ active_class(['sale-create']) }}">Create Sale</a>
+                        <a href="{{ route('sale.create-sale') }}" class="nav-link {{ active_class(['sale-create']) }}">Create Sale</a>
                     </li>
 
                 </ul>
